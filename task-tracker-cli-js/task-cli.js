@@ -11,6 +11,66 @@ const TASK_FILE = path.join(process.cwd(), 'tasks.json');
 const COMMAND = process.argv[2]; // El tercer elemento es el comando (add, list, etc.)
 const ARGS = process.argv.slice(3); // El resto son los argumentos de ese comando
 
+/**
+ * Carga todas las tareas del archivo JSON. Crea el archivo si no existe o si está vacío.
+ * @returns {Array} La lista de tareas, o un array vacío si no hay tareas o hay un error.
+ */
+function loadTasks() {
+    try {
+        // 1. Verifica si el archivo existe o está vacío (tamaño 0)
+        if (!fs.existsSync(TASK_FILE) || fs.statSync(TASK_FILE).size === 0) {
+            return [];
+        }
+        
+        // 2. Lee el contenido del archivo como texto
+        const data = fs.readFileSync(TASK_FILE, 'utf8');
+        
+        // 3. Convierte el texto JSON a un objeto JavaScript (Array de tareas)
+        return JSON.parse(data);
+    } catch (e) {
+        // Si el error es que el archivo no existe (ENOENT), regresa un array vacío.
+        if (e.code === 'ENOENT') {
+            return [];
+        }
+        // Manejo de JSON corrupto
+        console.error("❌ Error al leer o parsear tasks.json. Archivo corrupto. Se inicializará vacío.", e.message);
+        return [];
+    }
+}
+
+/**
+ * Guarda la lista de tareas en el archivo JSON.
+ * @param {Array} tasks La lista de tareas a guardar.
+ */
+function saveTasks(tasks) {
+    try {
+        // Convierte el Array de JavaScript a una cadena JSON con indentación (4 espacios)
+        const jsonString = JSON.stringify(tasks, null, 4);
+        
+        // Escribe la cadena en el archivo.
+        fs.writeFileSync(TASK_FILE, jsonString, 'utf8');
+    } catch (e) {
+        console.error("❌ Error al guardar las tareas en tasks.json:", e.message);
+    }
+}
+
+/**
+ * Calcula el siguiente ID único para una nueva tarea.
+ * Se basa en el ID más alto existente para asegurar unicidad.
+ * @param {Array} tasks La lista de tareas actual.
+ * @returns {number} El nuevo ID disponible.
+ */
+function getNextId(tasks) {
+    if (tasks.length === 0) {
+        return 1;
+    }
+    
+    // Encuentra el ID más grande usando reduce y le suma 1.
+    const maxId = tasks.reduce((max, task) => Math.max(max, task.id), 0);
+    return maxId + 1;
+}
+
+
 // Función principal para manejar los comandos
 function main() {
     if (!COMMAND) {
