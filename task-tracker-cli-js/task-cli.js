@@ -70,6 +70,42 @@ function getNextId(tasks) {
     return maxId + 1;
 }
 
+/**
+ * Agrega una nueva tarea a la lista.
+ * @param {string} description La descripción de la nueva tarea.
+ */
+function addTask(description) {
+    // 1. Validar que se haya proporcionado una descripción
+    if (!description) {
+        console.error("❌ Error: Se requiere una descripción para agregar una tarea.");
+        return;
+    }
+
+    // 2. Cargar las tareas existentes
+    const tasks = loadTasks();
+    
+    // 3. Generar el nuevo ID y la marca de tiempo
+    const newId = getNextId(tasks);
+    const now = new Date().toISOString(); // Formato ISO para createdAt y updatedAt
+
+    // 4. Crear el objeto de la nueva tarea con todas las propiedades requeridas
+    const newTask = {
+        id: newId,
+        description: description,
+        status: "todo", // El estado inicial siempre es 'todo'
+        createdAt: now,
+        updatedAt: now // Al crearla, es igual a createdAt
+    };
+
+    // 5. Agregar la nueva tarea a la lista
+    tasks.push(newTask);
+    
+    // 6. Guardar la lista actualizada
+    saveTasks(tasks);
+    
+    // 7. Mostrar la confirmación al usuario
+    console.log(`✅ Tarea agregada exitosamente (ID: ${newId}).`);
+}
 
 // Función principal para manejar los comandos
 function main() {
@@ -78,16 +114,13 @@ function main() {
         return;
     }
 
-    // Nota: Aquí solo estamos mostrando el comando. 
-    // La lógica real se implementará en los Pasos 2 a 6.
-
     switch (COMMAND) {
         case 'add':
-            // Temporal: Se reemplazará por addTask(ARGS[0]) en el Paso 3.
-            console.log(`Comando ADD con descripción: ${ARGS[0]}`);
+            // ¡Llamada a la función real!
+            addTask(ARGS[0]); // ARGS[0] contiene la descripción
             break;
         case 'list':
-            // Temporal: Se reemplazará por listTasks(ARGS[0]) en el Paso 4.
+            // Temporal
             console.log(`Comando LIST con estado: ${ARGS[0] || 'all'}`);
             break;
         case 'update':
