@@ -107,6 +107,56 @@ function addTask(description) {
     console.log(`✅ Tarea agregada exitosamente (ID: ${newId}).`);
 }
 
+/**
+ * Lista y opcionalmente filtra las tareas por estado.
+ * @param {string} statusFilter El estado por el cual filtrar (todo, in-progress, done) o 'all'.
+ */
+function listTasks(statusFilter) {
+    const tasks = loadTasks();
+
+    if (tasks.length === 0) {
+        console.log("No hay tareas registradas.");
+        return;
+    }
+
+    const filter = (statusFilter || 'all').toLowerCase();
+    let tasksToDisplay = tasks;
+
+    // 1. Lógica de Filtrado
+    if (filter !== 'all') {
+        const validStatuses = ['todo', 'in-progress', 'done'];
+        
+        if (!validStatuses.includes(filter)) {
+            console.error(`❌ Error: Estado de filtro inválido "${filter}". Use: todo, in-progress, o done.`);
+            return;
+        }
+        
+        // Filtra el array de tareas para mostrar solo las que coinciden con el estado
+        tasksToDisplay = tasks.filter(t => t.status === filter);
+        
+        if (tasksToDisplay.length === 0) {
+            console.log(`No hay tareas con estado '${filter}'.`);
+            return;
+        }
+    }
+
+    // 2. Impresión de Tareas
+    console.log("\n--- Lista de Tareas ---");
+    
+    tasksToDisplay.forEach(t => {
+        // Asignar un símbolo basado en el estado para mejor visualización
+        const statusSymbol = {
+            'todo': '☐',
+            'in-progress': '▶',
+            'done': '✔'
+        }[t.status] || '?';
+
+        // Usamos el método padEnd para alinear la salida y que se vea organizada
+        console.log(`[${statusSymbol}] ID: ${String(t.id).padEnd(3)} | Estado: ${t.status.padEnd(12)} | ${t.description}`);
+    });
+    console.log("-----------------------\n");
+}
+
 // Función principal para manejar los comandos
 function main() {
     if (!COMMAND) {
@@ -120,8 +170,9 @@ function main() {
             addTask(ARGS[0]); // ARGS[0] contiene la descripción
             break;
         case 'list':
-            // Temporal
-            console.log(`Comando LIST con estado: ${ARGS[0] || 'all'}`);
+            case 'list':
+            // ¡Llamada a la función real!
+            listTasks(ARGS[0]); // ARGS[0] puede ser 'todo', 'done', o undefined (lo que resulta en 'all')
             break;
         case 'update':
         case 'delete':
