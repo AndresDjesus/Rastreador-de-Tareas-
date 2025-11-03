@@ -219,6 +219,60 @@ function deleteTask(id) {
     console.log(`✅ Tarea ID ${taskId} eliminada exitosamente.`);
 }
 
+/**
+ * Función genérica para cambiar el estado de una tarea (todo, in-progress, done).
+ * Es utilizada por mark-in-progress y mark-done.
+ * @param {string} id El ID de la tarea a marcar.
+ * @param {string} newStatus El nuevo estado a asignar.
+ */
+function markTask(id, newStatus) {
+    const tasks = loadTasks();
+    const taskId = parseInt(id);
+
+    // 1. Validación de ID
+    if (isNaN(taskId)) {
+        console.error(`❌ Uso incorrecto. Uso: task-cli ${COMMAND} ID`);
+        return;
+    }
+
+    // 2. Buscar la tarea por ID
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+
+    if (taskIndex === -1) {
+        console.error(`❌ Error: No se encontró la tarea con ID ${taskId}.`);
+        return;
+    }
+
+    const task = tasks[taskIndex];
+
+    // 3. Verificar si el estado ya es el deseado (manejo de caso extremo)
+    if (task.status === newStatus) {
+        console.log(`ℹ️ Tarea ID ${taskId} ya está en estado '${newStatus}'.`);
+        return;
+    }
+
+    // 4. Actualizar estado y marca de tiempo
+    task.status = newStatus;
+    task.updatedAt = new Date().toISOString();
+    
+    // 5. Guardar y confirmar
+    saveTasks(tasks);
+    console.log(`✅ Tarea ID ${taskId} marcada como '${newStatus}'.`);
+}
+
+
+// -----------------------------------------------------------------
+// Envolturas para los comandos específicos
+// -----------------------------------------------------------------
+
+function markInProgress(id) {
+    markTask(id, 'in-progress');
+}
+
+function markDone(id) {
+    markTask(id, 'done');
+}
+
 // Función principal para manejar los comandos
 function main() {
     if (!COMMAND) {
@@ -244,11 +298,15 @@ function main() {
             // ARGS[0] es el ID
             deleteTask(ARGS[0]);
             break;
-        case 'mark-in-progress':
-        case 'mark-done':
-            // Temporal: Se reemplazará por funciones reales en Pasos 5 y 6.
-            console.log(`Comando ${COMMAND} en desarrollo...`);
+    case 'mark-in-progress':
+            // ARGS[0] es el ID
+            markInProgress(ARGS[0]);
             break;
+        case 'mark-done':
+            // ARGS[0] es el ID
+            markDone(ARGS[0]);
+            break;
+            
         default:
             console.error(`❌ Error: Comando desconocido "${COMMAND}".`);
             showHelp();
