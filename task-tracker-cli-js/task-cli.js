@@ -157,6 +157,68 @@ function listTasks(statusFilter) {
     console.log("-----------------------\n");
 }
 
+/**
+ * Actualiza la descripción de una tarea.
+ * @param {string} id El ID de la tarea a actualizar.
+ * @param {string} newDescription La nueva descripción.
+ */
+function updateTask(id, newDescription) {
+    const tasks = loadTasks();
+    const taskId = parseInt(id);
+
+    // 1. Validación de entrada
+    if (isNaN(taskId) || !newDescription) {
+        console.error("❌ Uso incorrecto. Uso: task-cli update ID \"Nueva Descripción\"");
+        return;
+    }
+
+    // 2. Buscar la tarea por ID
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+
+    if (taskIndex === -1) {
+        console.error(`❌ Error: No se encontró la tarea con ID ${taskId}.`);
+        return;
+    }
+
+    // 3. Actualizar propiedades
+    tasks[taskIndex].description = newDescription;
+    tasks[taskIndex].updatedAt = new Date().toISOString(); // Actualizar la marca de tiempo
+    
+    // 4. Guardar y confirmar
+    saveTasks(tasks);
+    console.log(`✅ Tarea ID ${taskId} actualizada exitosamente.`);
+}
+
+/**
+ * Elimina una tarea por su ID.
+ * @param {string} id El ID de la tarea a eliminar.
+ */
+function deleteTask(id) {
+    const tasks = loadTasks();
+    const taskId = parseInt(id);
+
+    // 1. Validación de entrada
+    if (isNaN(taskId)) {
+        console.error("❌ Uso incorrecto. Uso: task-cli delete ID");
+        return;
+    }
+
+    const initialLength = tasks.length;
+    
+    // 2. Filtrar el array para crear una nueva lista sin la tarea a eliminar
+    const updatedTasks = tasks.filter(t => t.id !== taskId);
+
+    // 3. Verificar si se eliminó alguna tarea
+    if (updatedTasks.length === initialLength) {
+        console.error(`❌ Error: No se encontró la tarea con ID ${taskId}.`);
+        return;
+    }
+
+    // 4. Guardar y confirmar
+    saveTasks(updatedTasks);
+    console.log(`✅ Tarea ID ${taskId} eliminada exitosamente.`);
+}
+
 // Función principal para manejar los comandos
 function main() {
     if (!COMMAND) {
@@ -175,7 +237,13 @@ function main() {
             listTasks(ARGS[0]); // ARGS[0] puede ser 'todo', 'done', o undefined (lo que resulta en 'all')
             break;
         case 'update':
+            // ARGS[0] es el ID, ARGS[1] es la descripción
+            updateTask(ARGS[0], ARGS[1]);
+            break;
         case 'delete':
+            // ARGS[0] es el ID
+            deleteTask(ARGS[0]);
+            break;
         case 'mark-in-progress':
         case 'mark-done':
             // Temporal: Se reemplazará por funciones reales en Pasos 5 y 6.

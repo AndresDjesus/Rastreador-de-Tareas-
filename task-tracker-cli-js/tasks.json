@@ -1,16 +1,9 @@
 [
     {
         "id": 1,
-        "description": "Terminar el Paso 3 del CLI",
+        "description": "Revisar código del Paso 5 e iniciar Paso 6",
         "status": "todo",
         "createdAt": "2025-10-28T23:46:55.143Z",
-        "updatedAt": "2025-10-28T23:46:55.143Z"
-    },
-    {
-        "id": 2,
-        "description": "Comprar café",
-        "status": "todo",
-        "createdAt": "2025-10-28T23:47:15.460Z",
-        "updatedAt": "2025-10-28T23:47:15.460Z"
+        "updatedAt": "2025-11-03T22:39:20.607Z"
     }
 ]
